@@ -7,7 +7,6 @@ app.use(express.json());
 let servidores = {};
 let logs = []; 
 
-// Limpieza inteligente: Revisa cada segundo y borra solo los que ya cumplieron 10 segundos
 setInterval(() => {
     const ahora = Date.now();
     logs = logs.filter(log => log.expira > ahora);
@@ -33,10 +32,8 @@ app.post('/update', (req, res) => {
 app.post('/send_log', (req, res) => {
     const { JobId, Evento, Usuario } = req.body;
     
-    // 1. Filtramos para eliminar cualquier log viejo que tenga este mismo JobId (Adiós repetidos)
     logs = logs.filter(log => log.jobId !== JobId);
 
-    // 2. Guardamos el log nuevo con un contador de vida de 10 segundos (10,000 milisegundos)
     logs.push({
         jobId: JobId || "Global",
         evento: Evento || "N/A",
@@ -48,13 +45,17 @@ app.post('/send_log', (req, res) => {
 });
 
 app.get('/get_logs', (req, res) => {
-    // Mapeamos los datos para enviártelos limpios, sin mostrar la variable "expira"
     const logsLimpios = logs.map(l => ({
         JobId: l.jobId,
         Evento: l.evento,
         Usuario: l.usuario
     }));
     res.json(logsLimpios);
+});
+
+// NUEVA RUTA: Para ver todos los servidores sin saber el JobId
+app.get('/todos', (req, res) => {
+    res.json(servidores);
 });
 
 app.get('/get_server/:jobid', (req, res) => {
