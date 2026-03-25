@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6767;
 
 app.use(express.json());
 
@@ -12,7 +12,7 @@ setInterval(() => {
 }, 3000);
 
 app.get('/', (req, res) => {
-    res.send('API Online');
+    res.status(200).send('API Online');
 });
 
 app.post('/update', (req, res) => {
@@ -26,6 +26,12 @@ app.post('/update', (req, res) => {
         timestamp: new Date().toLocaleString()
     };
     res.json({ status: "success" });
+});
+
+app.get('/get_server/:jobid', (req, res) => {
+    const data = servidores[req.params.jobid];
+    if (data) return res.json(data);
+    res.status(404).json({ error: "Not found" });
 });
 
 app.post('/send_log', (req, res) => {
@@ -43,6 +49,6 @@ app.get('/get_logs', (req, res) => {
     res.json(logs);
 });
 
-app.listen(PORT, () => {
-    console.log(`Port: ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });
