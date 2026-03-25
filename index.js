@@ -7,6 +7,10 @@ app.use(express.json());
 let servidores = {};
 let logs = [];
 
+setInterval(() => {
+    logs = [];
+}, 3000);
+
 app.get('/', (req, res) => {
     res.send('API Online');
 });
@@ -24,12 +28,6 @@ app.post('/update', (req, res) => {
     res.json({ status: "success" });
 });
 
-app.get('/get_server/:jobid', (req, res) => {
-    const data = servidores[req.params.jobid];
-    if (data) return res.json(data);
-    res.status(404).json({ error: "Not found" });
-});
-
 app.post('/send_log', (req, res) => {
     const { JobId, Evento, Usuario } = req.body;
     logs.push({
@@ -38,7 +36,6 @@ app.post('/send_log', (req, res) => {
         evento: Evento || "N/A",
         usuario: Usuario || "System"
     });
-    if (logs.length > 200) logs.shift();
     res.json({ status: "ok" });
 });
 
